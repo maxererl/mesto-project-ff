@@ -1,6 +1,6 @@
-import { editPopup, profileName, profileJob, nameInput, jobInput, addPopup, addFormElement, placeInput, linkInput } from "./index.js"
-import { showModal, hideModal } from "./modal";
-import { displayCardStart } from "./cards.js";
+import { editPopup, profileName, profileJob, nameInput, jobInput, addPopup, addFormElement, placeInput, linkInput } from './index.js';
+import { showModal, hideModal } from './modal.js';
+import { displayCardStart } from './card.js';
 
 // Function to open edit profile popup
 export function handleEditFormOpen() {

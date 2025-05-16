@@ -1,40 +1,13 @@
-import { displayCardEnd } from "./cards";
-import { showModal, addModalListners } from "./modal";
-import { handleEditFormOpen, handleEditFormSubmit, handleAddFormSubmit } from "./form";
+import { initialCards } from './cards.js';
+import { displayCardEnd } from './card.js';
+import { showModal, addModalListners } from './modal.js';
+import { handleEditFormOpen, handleEditFormSubmit, handleAddFormSubmit } from './form.js';
 
-// Initial cards
-const initialCards = [
-  {
-    name: "Архыз",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/arkhyz.jpg",
-  },
-  {
-    name: "Челябинская область",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/chelyabinsk-oblast.jpg",
-  },
-  {
-    name: "Иваново",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/ivanovo.jpg",
-  },
-  {
-    name: "Камчатка",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kamchatka.jpg",
-  },
-  {
-    name: "Холмогорский район",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kholmogorsky-rayon.jpg",
-  },
-  {
-    name: "Байкал",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/baikal.jpg",
-  }
-];
-
-// DOM узлы
+// DOM nodes
 
 // Cards
 export const cards = document.querySelector('.places__list');
-// Темплейт карточки
+// Card template
 export const template = document.querySelector('#card-template').content;
 
 // Modal
@@ -66,7 +39,7 @@ export const addFormElement = document.forms['new-place'];
 export const placeInput = addFormElement.querySelector('.popup__input_type_card-name');
 export const linkInput = addFormElement.querySelector('.popup__input_type_url');
 
-// Вывести карточки на страницу
+// Display cards on page
 initialCards.forEach(displayCardEnd);
 
 // Binding open buttons to popups
@@ -78,5 +51,6 @@ addModalListners(editPopup);
 addModalListners(addPopup);
 addModalListners(placePopup);
 
+// Add listners to forms
 editFormElement.addEventListener('submit', handleEditFormSubmit);
 addFormElement.addEventListener('submit', handleAddFormSubmit);

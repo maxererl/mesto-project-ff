@@ -3,25 +3,14 @@ const escapeHandler = evt => {if (evt.key === 'Escape') hideModal(document.query
 
 // Function to show popup
 export function showModal(popup) {
-  popup.classList.add('popup_is-animated');
-  // A little time for css applying
-  setTimeout(() => {
-    popup.classList.add('popup_is-opened');
-    popup.classList.remove('popup_is-animated');
-  }, 0);
-
+  popup.classList.add('popup_is-opened');
   // Hide popup if escape pressed
   document.addEventListener('keydown', escapeHandler);
 }
 
 // Function to hide popup
 export function hideModal(popup) {
-  popup.classList.add('popup_is-animated');
   popup.classList.remove('popup_is-opened');
-  setTimeout(() => {
-    popup.classList.remove('popup_is-animated');
-  }, 600);
-
   document.removeEventListener('keydown', escapeHandler);
 }
 

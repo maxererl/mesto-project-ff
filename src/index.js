@@ -3,6 +3,7 @@ import './pages/index.css';
 import { initialCards } from './scripts/cards.js';
 import { displayCardStart, displayCardEnd } from './scripts/card.js';
 import { showModal, hideModal, addModalListners } from './scripts/modal.js';
+import { enableValidation, clearValidation } from './scripts/validation.js';
 
 // DOM nodes
 
@@ -40,6 +41,16 @@ const addFormElement = document.forms['new-place'];
 const placeInput = addFormElement.querySelector('.popup__input_type_card-name');
 const linkInput = addFormElement.querySelector('.popup__input_type_url');
 
+// Validation config
+const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+};
+
 // Display cards on page
 initialCards.forEach(card => displayCardEnd(cards, template, card, zoomCard));
 
@@ -76,6 +87,9 @@ function zoomCard(cardData) {
 // Forms functions
 // Function to open edit profile popup
 function handleEditFormOpen() {
+  //Clear validation errors
+  clearValidation(editFormElement, validationConfig);
+
   // Set current input values
   nameInput.value = profileName.textContent;
   jobInput.value = profileJob.textContent;
@@ -87,6 +101,9 @@ function handleEditFormOpen() {
 // Function to process profile changes
 function handleEditFormSubmit(evt) {
   evt.preventDefault();
+  //Clear validation errors
+  clearValidation(editFormElement, validationConfig);
+
   // Set new profile fields
   profileName.textContent = nameInput.value;
   profileJob.textContent = jobInput.value;
@@ -103,7 +120,12 @@ function handleAddFormSubmit(evt) {
 
   // Reset form inputs
   addFormElement.reset();
-
+  //Clear validation errors
+  clearValidation(addFormElement, validationConfig);
+  
   // Hide popup
   hideModal(addPopup);
 }
+
+// Enable form validation
+enableValidation(validationConfig);

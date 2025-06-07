@@ -1,0 +1,6 @@
+.popup .popup__button_disabled {
+  background: transparent;
+  border: 1px solid black;
+  color: black;
+  opacity: 20%;
+}

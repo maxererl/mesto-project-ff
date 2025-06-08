@@ -5,24 +5,34 @@ export function createCard(template, cardData, removeCard, likeCard, zoomCard) {
   cardImage.src = cardData.link;
   cardImage.alt = cardData.name;
   card.querySelector('.card__description .card__title').textContent = cardData.name;
-  card.querySelector('.card__delete-button').addEventListener('click', () => removeCard(card));
-  card.querySelector('.card__like-button').addEventListener('click', () => likeCard(card));
+
+  const likeCounter = card.querySelector('.card__like-counter');
+  likeCounter.textContent = cardData.likes.length;
+
+  card.querySelector('.card__delete-button').addEventListener('click', () => {
+    removeCard(cardData).then(() => card.remove()).catch(err => console.log(err));
+  });
+
+  const likeButton = card.querySelector('.card__like-button');
+  likeButton.addEventListener('click', () => {
+    likeCard(cardData).then(newData => {
+      cardData = newData;
+      likeCounter.textContent = newData.likes.length;
+      likeButton.classList.toggle('card__like-button_is-active');
+    })
+    .catch(err => console.log(err));
+  });
   cardImage.addEventListener('click', () => zoomCard(cardData));
+
   return card;
 }
 
-// Function to delete a card
-export const removeCard = card => card.remove();
-
-// Function to set or unset like on card
-export const likeCard = card => card.querySelector('.card__like-button').classList.toggle('card__like-button_is-active');
-
 // Function to display card from the start
-export function displayCardStart(cardList, template, cardData, zoomCard) {
-  cardList.prepend(createCard(template, cardData, removeCard, likeCard, zoomCard))
+export function displayCardStart(cardList, card) {
+  cardList.prepend(card)
 };
 
 // Function to display card from the end
-export function displayCardEnd(cardList, template, cardData, zoomCard) {
-  cardList.append(createCard(template, cardData, removeCard, likeCard, zoomCard))
+export function displayCardEnd(cardList, card) {
+  cardList.append(card)
 };

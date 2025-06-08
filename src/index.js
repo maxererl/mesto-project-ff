@@ -1,7 +1,7 @@
 import './pages/index.css';
 
 import { getInitialCards, getUserInfo, updateUserInfo, addCard, deleteCard, likeCardRequest, unlikeCardRequest, updateUserImage } from './scripts/api.js';
-import { createCard, displayCardStart, displayCardEnd } from './scripts/card.js';
+import { createCard, isLiked } from './scripts/card.js';
 import { showModal, hideModal, addModalListners } from './scripts/modal.js';
 import { enableValidation, clearValidation } from './scripts/validation.js';
 
@@ -70,9 +70,7 @@ user.then(userData => {
   .catch(err => console.log(err));
 // Display cards on page
 Promise.all([user, initialCards]).then(arr => arr[1].forEach(card => {
-  const cardNode = createCard(template, card, removeCard, likeCard, zoomCard);
-  if (arr[0]._id !== card.owner._id) cardNode.querySelector('.card__delete-button').remove();
-  if (card.likes.map(like => like._id).includes(arr[0]._id)) cardNode.querySelector('.card__like-button').classList.add('card__like-button_is-active');
+  const cardNode = createCard(template, arr[0]._id, card, removeCard, likeCard, zoomCard);
   displayCardEnd(cards, cardNode);
 }));
 
@@ -105,11 +103,10 @@ enableValidation(validationConfig);
 const removeCard = cardData => deleteCard(cardData._id);
 
 // Function to set or unset like on card
-const likeCard = cardData => user.then(userData => {
-  if (cardData.likes.map(like => like._id).includes(userData._id)) return unlikeCardRequest(cardData._id);
+const likeCard = (cardData, userId) => {
+  if (isLiked(cardData, userId)) return unlikeCardRequest(cardData._id);
   else return likeCardRequest(cardData._id);
-})
-.catch(err => console.log(err));
+};
 
 // Function to open card popup
 function zoomCard(cardData) {
@@ -128,8 +125,8 @@ function handleEditImageFormOpen() {
   //Clear validation errors
   clearValidation(editImageFormElement, validationConfig);
 
-  // Set current input value
-  imageLinkInput.value = profileImage.style.backgroundImage.match(/(?<=").*(?=")/)[0];
+  // Clear input value
+  editImageFormElement.reset();
 
   // Show popup
   showModal(editImagePopup);
@@ -151,15 +148,15 @@ function handleEditFormOpen() {
 // Function to process profile image change
 function handleEditImageFormSubmit(evt) {
   evt.preventDefault();
-  //Clear validation errors
-  clearValidation(editImageFormElement, validationConfig);
+
   renderLoading(editImageFormElement, true);
-  updateUserImage(imageLinkInput.value).then(res => profileImage.style.backgroundImage = `url("${res.avatar}")`)
+  updateUserImage(imageLinkInput.value).then(res => {
+    profileImage.style.backgroundImage = `url("${res.avatar}")`;
+    // Hide popup
+    hideModal(editImagePopup);
+  })
   .catch(err => console.log(err))
   .finally(() => renderLoading(editImageFormElement, false));
-
-  // Hide popup
-  hideModal(editImagePopup);
 }
 
 // Function to process profile changes
@@ -169,15 +166,14 @@ function handleEditFormSubmit(evt) {
   clearValidation(editFormElement, validationConfig);
   renderLoading(editFormElement, true);
   updateUserInfo(nameInput.value, jobInput.value)
-  .then(user => {
-    profileName.textContent = user.name;
-    profileJob.textContent = user.about;
+  .then(userData => {
+    profileName.textContent = userData.name;
+    profileJob.textContent = userData.about;
+    // Hide popup
+    hideModal(editPopup);
   })
   .catch(err => console.log(err))
   .finally(() => renderLoading(editFormElement, false))
-  
-  // Hide popup
-  hideModal(editPopup);
 }
 
 // Function to process new card insertion
@@ -187,20 +183,21 @@ function handleAddFormSubmit(evt) {
   clearValidation(addFormElement, validationConfig);
   renderLoading(addFormElement, true);
   addCard(placeInput.value, linkInput.value)
-  .then(card => {
-    const cardNode = createCard(template, card, removeCard, likeCard, zoomCard);
+  .then(cardData => {
+    const cardNode = createCard(template, cardData.owner._id, cardData, removeCard, likeCard, zoomCard);
     displayCardStart(cards, cardNode);
+
+    // Reset form inputs
+    addFormElement.reset();
+    addFormElement.querySelector('.popup__button').classList.add(validationConfig.inactiveButtonClass);
+    // Hide popup
+    hideModal(addPopup);
   })
   .catch(err => console.log(err))
   .finally(() => renderLoading(addFormElement, false));
-  
-  // Reset form inputs
-  addFormElement.reset();
-  
-  // Hide popup
-  hideModal(addPopup);
 }
 
+// Function to render form loading status
 function renderLoading(form, isLoading) {
   if (isLoading) {
     form.querySelector('.popup__button').textContent = 'Сохранение...';
@@ -208,3 +205,13 @@ function renderLoading(form, isLoading) {
     form.querySelector('.popup__button').textContent = 'Сохранить';
   }
 }
+
+// Function to display card from the start
+export function displayCardStart(cardList, card) {
+  cardList.prepend(card)
+};
+
+// Function to display card from the end
+export function displayCardEnd(cardList, card) {
+  cardList.append(card)
+};
